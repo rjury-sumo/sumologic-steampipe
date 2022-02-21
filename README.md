@@ -127,4 +127,12 @@ _sourcecategory=steampipe/aws_ec2_instance
 | json field=_raw "placement_availability_zone"
 | json field=_raw "tags"
 | json field=_raw "vpc_id"
+| json field=_raw "private_dns_name"
+
+| count by account_id,title,arn,region,image_id,instance_id,instance_type,key_name,monitoring_state,placement_availability_zone,private_dns_name,tags,vpc_id
+| sort instance_id asc
+
 ```
+
+# Dashboarding
+You can find a simple example dashboard in the file dashboard_demo.json

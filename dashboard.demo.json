@@ -1,0 +1,131 @@
+
+
+{
+    "type": "DashboardV2SyncDefinition",
+    "name": "Steampipe Demo",
+    "description": "",
+    "title": "Steampipe Demo",
+    "rootPanel": null,
+    "theme": "Light",
+    "topologyLabelMap": {
+        "data": {}
+    },
+    "refreshInterval": 0,
+    "timeRange": {
+        "type": "BeginBoundedTimeRange",
+        "from": {
+            "type": "RelativeTimeRangeBoundary",
+            "relativeTime": "-1d"
+        },
+        "to": null
+    },
+    "layout": {
+        "layoutType": "Grid",
+        "layoutStructures": [
+            {
+                "key": "panel06BC3E84AEE62A40",
+                "structure": "{\"height\":9,\"width\":24,\"x\":0,\"y\":14}"
+            },
+            {
+                "key": "panelPANE-66A56F6496F66949",
+                "structure": "{\"height\":7,\"width\":24,\"x\":0,\"y\":7}"
+            },
+            {
+                "key": "panelPANE-87D8E9EE9A1C0A48",
+                "structure": "{\"height\":7,\"width\":24,\"x\":0,\"y\":0}"
+            }
+        ]
+    },
+    "panels": [
+        {
+            "id": null,
+            "key": "panel06BC3E84AEE62A40",
+            "title": "EC2 Instances",
+            "visualSettings": "{\"general\":{\"mode\":\"distribution\",\"type\":\"table\"},\"series\":{}}",
+            "keepVisualSettingsConsistentWithParent": true,
+            "panelType": "SumoSearchPanel",
+            "queries": [
+                {
+                    "queryString": "_sourcecategory=steampipe/aws_ec2_instance {{{keywords}}}\n| json field=_raw \"account_id\"\n| json field=_raw \"region\"\n| json field=_raw \"title\"\n| json field=_raw \"arn\"\n| json field=_raw \"image_id\"\n| json field=_raw \"instance_id\"\n| json field=_raw \"instance_type\"\n| json field=_raw \"key_name\"\n| json field=_raw \"monitoring_state\"\n| json field=_raw \"placement_availability_zone\"\n| json field=_raw \"tags\"\n| json field=_raw \"vpc_id\"\n| json field=_raw \"private_dns_name\"\n\n| count by account_id,title,arn,region,image_id,instance_id,instance_type,key_name,monitoring_state,placement_availability_zone,private_dns_name,tags,vpc_id\n| sort instance_id asc",
+                    "queryType": "Logs",
+                    "queryKey": "A",
+                    "metricsQueryMode": null,
+                    "metricsQueryData": null,
+                    "tracesQueryData": null,
+                    "parseMode": "Auto",
+                    "timeSource": "Message"
+                }
+            ],
+            "description": "",
+            "timeRange": null,
+            "coloringRules": null,
+            "linkedDashboards": []
+        },
+        {
+            "id": null,
+            "key": "panelPANE-66A56F6496F66949",
+            "title": "IAM Roles",
+            "visualSettings": "{\"title\":{\"fontSize\":14},\"axes\":{\"axisX\":{\"titleFontSize\":12,\"labelFontSize\":12},\"axisY\":{\"titleFontSize\":12,\"labelFontSize\":12}},\"series\":{},\"general\":{\"type\":\"table\",\"displayType\":\"default\",\"paginationPageSize\":100,\"fontSize\":12,\"mode\":\"distribution\"},\"legend\":{\"enabled\":false}}",
+            "keepVisualSettingsConsistentWithParent": true,
+            "panelType": "SumoSearchPanel",
+            "queries": [
+                {
+                    "queryString": "_sourcecategory=steampipe/aws_iam_role {{{keywords}}}\n| json field=_raw \"account_id\"\n| json field=_raw \"region\"\n| json field=_raw \"title\"\n| json field=_raw \"create_date\"\n| json field=_raw \"tags\"\n| count by account_id,region,title,create_date,description,tags | fields -_count | sort title asc",
+                    "queryType": "Logs",
+                    "queryKey": "A",
+                    "metricsQueryMode": null,
+                    "metricsQueryData": null,
+                    "tracesQueryData": null,
+                    "parseMode": "Auto",
+                    "timeSource": "Message"
+                }
+            ],
+            "description": "",
+            "timeRange": null,
+            "coloringRules": null,
+            "linkedDashboards": []
+        },
+        {
+            "id": null,
+            "key": "panelPANE-87D8E9EE9A1C0A48",
+            "title": "AWS Accounts",
+            "visualSettings": "{\"title\":{\"fontSize\":14},\"axes\":{\"axisX\":{\"titleFontSize\":12,\"labelFontSize\":12},\"axisY\":{\"titleFontSize\":12,\"labelFontSize\":12}},\"series\":{},\"general\":{\"type\":\"table\",\"displayType\":\"default\",\"paginationPageSize\":100,\"fontSize\":12,\"mode\":\"distribution\"},\"legend\":{\"enabled\":false}}",
+            "keepVisualSettingsConsistentWithParent": true,
+            "panelType": "SumoSearchPanel",
+            "queries": [
+                {
+                    "queryString": "_sourcecategory=steampipe/aws_account {{{keywords}}}\n| json field=_raw \"account_id\"\n| json field=_raw \"organization_master_account_id\"\n| json field=_raw \"organization_master_account_email\"\n| json field=_raw \"region\"\n| json field=_raw \"title\"\n| count by account_id,organization_master_account_id,organization_master_account_email,region,title | fields -_count | sort account_id asc",
+                    "queryType": "Logs",
+                    "queryKey": "A",
+                    "metricsQueryMode": null,
+                    "metricsQueryData": null,
+                    "tracesQueryData": null,
+                    "parseMode": "Auto",
+                    "timeSource": "Message"
+                }
+            ],
+            "description": "",
+            "timeRange": null,
+            "coloringRules": null,
+            "linkedDashboards": []
+        }
+    ],
+    "variables": [
+        {
+            "id": null,
+            "name": "keywords",
+            "displayName": "keywords",
+            "defaultValue": "*",
+            "sourceDefinition": {
+                "variableSourceType": "CsvVariableSourceDefinition",
+                "values": "// any keywords"
+            },
+            "allowMultiSelect": false,
+            "includeAllOption": true,
+            "hideFromUI": false,
+            "valueType": "Any"
+        }
+    ],
+    "coloringRules": []
+}
+
