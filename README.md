@@ -166,7 +166,7 @@ Here is an example json for this new source:
   }
 }
 ```
-# Setup envrionment variables
+# Setup environment variables
 Note the example scripts use env vars for the sumo source endpoints.
 
 ## SUMO_STEAMPIPE_URL env var for query collection
