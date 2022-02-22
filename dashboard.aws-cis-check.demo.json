@@ -1,0 +1,187 @@
+
+
+{
+    "type": "DashboardV2SyncDefinition",
+    "name": "Steampipe AWS CIS Demo",
+    "description": "",
+    "title": "Steampipe AWS CIS Demo",
+    "rootPanel": null,
+    "theme": "Light",
+    "topologyLabelMap": {
+        "data": {}
+    },
+    "refreshInterval": 0,
+    "timeRange": {
+        "type": "BeginBoundedTimeRange",
+        "from": {
+            "type": "RelativeTimeRangeBoundary",
+            "relativeTime": "-1h"
+        },
+        "to": null
+    },
+    "layout": {
+        "layoutType": "Grid",
+        "layoutStructures": [
+            {
+                "key": "panel33A65F8ABDB4BA4F",
+                "structure": "{\"height\":15,\"width\":24,\"x\":0,\"y\":18}"
+            },
+            {
+                "key": "panel6839608FA9866A4E",
+                "structure": "{\"height\":8,\"width\":8,\"x\":0,\"y\":0}"
+            },
+            {
+                "key": "panel3F06F1EEB0C37A48",
+                "structure": "{\"height\":8,\"width\":8,\"x\":8,\"y\":0}"
+            },
+            {
+                "key": "panelD5A805229537CB48",
+                "structure": "{\"height\":10,\"width\":24,\"x\":0,\"y\":8}"
+            },
+            {
+                "key": "panel457EC7B18BF9894A",
+                "structure": "{\"height\":8,\"width\":8,\"x\":16,\"y\":0}"
+            }
+        ]
+    },
+    "panels": [
+        {
+            "id": null,
+            "key": "panel33A65F8ABDB4BA4F",
+            "title": "Alarm Status",
+            "visualSettings": "{\"general\":{\"mode\":\"distribution\",\"type\":\"table\"},\"series\":{}}",
+            "keepVisualSettingsConsistentWithParent": true,
+            "panelType": "SumoSearchPanel",
+            "queries": [
+                {
+                    "queryString": "_sourcecategory = \"steampipe/check/aws-compliance-cis\" {{{keywords}}}\n| csv _raw extract  group_id,title,description,control_id,control_title,control_description,reason,resource,status,account_id,region,cis,cis_item_id,cis_level,cis_section_id,cis_type,cis_version,plugin,service\n// ditch line 1\n| where status !=\"status\"\n| where status in (\"alarm\")\n// ditch line 1\n| where status !=\"status\"\n| where status in (\"alarm\")\n| count by title,status,control_id,control_title,account_id,region,resource,reason,group_id,control_description | sort control_title asc\n",
+                    "queryType": "Logs",
+                    "queryKey": "A",
+                    "metricsQueryMode": null,
+                    "metricsQueryData": null,
+                    "tracesQueryData": null,
+                    "parseMode": "Auto",
+                    "timeSource": "Message"
+                }
+            ],
+            "description": "",
+            "timeRange": null,
+            "coloringRules": null,
+            "linkedDashboards": []
+        },
+        {
+            "id": null,
+            "key": "panel6839608FA9866A4E",
+            "title": "Checks By Status",
+            "visualSettings": "{\"series\":{},\"general\":{\"type\":\"pie\",\"displayType\":\"default\",\"fillOpacity\":1,\"startAngle\":270,\"innerRadius\":\"30%\",\"maxNumOfSlices\":10,\"mode\":\"distribution\"}}",
+            "keepVisualSettingsConsistentWithParent": true,
+            "panelType": "SumoSearchPanel",
+            "queries": [
+                {
+                    "queryString": "_sourcecategory = \"steampipe/check/aws-compliance-cis\" {{{keywords}}}\n| csv _raw extract  group_id,title,description,control_id,control_title,control_description,reason,resource,status,account_id,region,cis,cis_item_id,cis_level,cis_section_id,cis_type,cis_version,plugin,service\n// ditch line 1\n| where status !=\"status\"\n| count by status //,control_id,control_title,control_description,account_id,region,resource,reason,group_id\n",
+                    "queryType": "Logs",
+                    "queryKey": "A",
+                    "metricsQueryMode": null,
+                    "metricsQueryData": null,
+                    "tracesQueryData": null,
+                    "parseMode": "Auto",
+                    "timeSource": "Message"
+                }
+            ],
+            "description": "",
+            "timeRange": null,
+            "coloringRules": null,
+            "linkedDashboards": []
+        },
+        {
+            "id": null,
+            "key": "panel3F06F1EEB0C37A48",
+            "title": "Alarms By Account",
+            "visualSettings": "{\"series\":{},\"general\":{\"type\":\"pie\",\"displayType\":\"default\",\"fillOpacity\":1,\"startAngle\":270,\"innerRadius\":\"30%\",\"maxNumOfSlices\":10,\"mode\":\"distribution\"}}",
+            "keepVisualSettingsConsistentWithParent": true,
+            "panelType": "SumoSearchPanel",
+            "queries": [
+                {
+                    "queryString": "_sourcecategory = \"steampipe/check/aws-compliance-cis\" {{{keywords}}}\n| csv _raw extract  group_id,title,description,control_id,control_title,control_description,reason,resource,status,account_id,region,cis,cis_item_id,cis_level,cis_section_id,cis_type,cis_version,plugin,service\n// ditch line 1\n| where status =\"alarm\"\n| count by account_id //,resource,reason,group_id\n",
+                    "queryType": "Logs",
+                    "queryKey": "A",
+                    "metricsQueryMode": null,
+                    "metricsQueryData": null,
+                    "tracesQueryData": null,
+                    "parseMode": "Auto",
+                    "timeSource": "Message"
+                }
+            ],
+            "description": "",
+            "timeRange": null,
+            "coloringRules": null,
+            "linkedDashboards": []
+        },
+        {
+            "id": null,
+            "key": "panelD5A805229537CB48",
+            "title": "Alarm Controls With Reasons and Resource Count",
+            "visualSettings": "{\"series\":{},\"legend\":{\"enabled\":false},\"general\":{\"type\":\"table\",\"displayType\":\"default\",\"paginationPageSize\":100,\"fontSize\":12,\"mode\":\"distribution\"}}",
+            "keepVisualSettingsConsistentWithParent": true,
+            "panelType": "SumoSearchPanel",
+            "queries": [
+                {
+                    "queryString": "_sourcecategory = \"steampipe/check/aws-compliance-cis\" {{{keywords}}}\n| csv _raw extract  group_id,title,description,control_id,control_title,control_description,reason,resource,status,account_id,region,cis,cis_item_id,cis_level,cis_section_id,cis_type,cis_version,plugin,service\n// ditch line 1\n| where status =\"alarm\"\n| count,last(reason) as reason, count_distinct(resource) as resources by control_title | sort _count\n",
+                    "queryType": "Logs",
+                    "queryKey": "A",
+                    "metricsQueryMode": null,
+                    "metricsQueryData": null,
+                    "tracesQueryData": null,
+                    "parseMode": "Auto",
+                    "timeSource": "Message"
+                }
+            ],
+            "description": "",
+            "timeRange": null,
+            "coloringRules": null,
+            "linkedDashboards": []
+        },
+        {
+            "id": null,
+            "key": "panel457EC7B18BF9894A",
+            "title": "Alarms By Control",
+            "visualSettings": "{\"series\":{},\"general\":{\"type\":\"pie\",\"displayType\":\"default\",\"fillOpacity\":1,\"startAngle\":270,\"innerRadius\":\"30%\",\"maxNumOfSlices\":25,\"mode\":\"distribution\"}}",
+            "keepVisualSettingsConsistentWithParent": true,
+            "panelType": "SumoSearchPanel",
+            "queries": [
+                {
+                    "queryString": "_sourcecategory = \"steampipe/check/aws-compliance-cis\" {{{keywords}}}\n| csv _raw extract  group_id,title,description,control_id,control_title,control_description,reason,resource,status,account_id,region,cis,cis_item_id,cis_level,cis_section_id,cis_type,cis_version,plugin,service\n// ditch line 1\n| where status =\"alarm\"\n| count by control_title | sort _count",
+                    "queryType": "Logs",
+                    "queryKey": "A",
+                    "metricsQueryMode": null,
+                    "metricsQueryData": null,
+                    "tracesQueryData": null,
+                    "parseMode": "Auto",
+                    "timeSource": "Message"
+                }
+            ],
+            "description": "",
+            "timeRange": null,
+            "coloringRules": null,
+            "linkedDashboards": []
+        }
+    ],
+    "variables": [
+        {
+            "id": null,
+            "name": "keywords",
+            "displayName": "keywords",
+            "defaultValue": "*",
+            "sourceDefinition": {
+                "variableSourceType": "CsvVariableSourceDefinition",
+                "values": "// any keywords"
+            },
+            "allowMultiSelect": false,
+            "includeAllOption": true,
+            "hideFromUI": false,
+            "valueType": "Any"
+        }
+    ],
+    "coloringRules": []
+}
+
