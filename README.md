@@ -1,23 +1,27 @@
 # sumologic-steampipe
 A container to demo using steampipe.io to:
 - send inventory data to sumologic as per: https://steampipe.io/docs/using-steampipe/steampipe-query 
-- run compliance checks such as https://steampipe.io/docs/using-steampipe/running-controls
+- run compliance checks such as https://steampipe.io/docs/using-steampipe/running-controls and post these to SumoLogic for compliance reporting use cases.
 
+Example use cases might be:
+- generating daily inventory reports in SumoLogic for  cloud or other infrastructure
+- Building automated compliance checks in SumoLogic using steampipe compliance mods.
+
+## Solution Overview
 In general the approach is:
 - for inventory sql query export in json format and post a slight modified json paylod to sumologic https endpoint source
 - for checks use --export in csv format to a file and post that to a checks sumologic https source.
 
 Note you can do EITHER query or checks or both, you only need to follow instructions to configure either as pertinent to your use case.
 
-# setup steampipe container
+# Setting up a steampipe container
 For this demo we use the standard container, for usage see:  https://steampipe.io/docs/develop/containers
+This means we don't have to install steampipe locally. For a production deployment you might want to run a real instance say on linux.
 
-## aliasing the container
+## Aliasing the container
 Use an alias we can execute the container and persist key info across sessions. This is an example to alias the container for a steampipe query. 
 
 Check alias is a little more complex.
-
-This means we don't have to install steampipe locally. For a production deployment you might want to run a real instance say on linux.
 
 ```
 mkdir -p $HOME/sp/config
@@ -41,7 +45,7 @@ You can now launch steampipe in interactive or other modes using the alias for e
 sp query "select * from aws_account" --output json
 ```
 
-## Install reguired pluains into the container environment
+## Install reguired plugins into the container environment
 Install any required plugins into the environment. These will be mounted to the container using:
 ```
 --mount type=volume,source=steampipe_plugins,target=/home/steampipe/.steampipe/plugins 
@@ -85,16 +89,17 @@ spcaws-compliance --export=/home/CHECKS/aws-compliance-cis.csv
 ```
 
 ## Setup required connections
-For a simple demo the container you just need valid creditials in your execution environment for example if the aws cli is configured with default creditials.
+For a simple demo the container you just need valid creditials in your execution environment for example if the AWS CLI is configured with default creditials.
 
 For multi account/region or other custom connections you might need a more complex setup using connection files such as $HOME/sp/config/aws.spc
 For multiple aws accounts and regions polling this article will be very useful.
 https://aws.amazon.com/blogs/opensource/querying-aws-at-scale-across-apis-regions-and-accounts/
 
-# Setup A Sumologic collector and source(s)
+# Setup a Sumologic collector and source(s)
+We need to create some collection on the sumo side for us to POST events to.
 Create a new hosted collector called 'steampipe'
 
-## create a hosted source for steampipe query json output
+## Create a hosted source for steampipe query json output
 We will post json data from steampipe queries to this https endpoint.
 
 Add a HTTPS logs source also called 'steampipe' to your collector 
@@ -129,17 +134,17 @@ here is an example json for this source:
 
 note the https endpoint address for use later as the SUMO_STEAMPIPE_URL.
 
-## Create hosted sources for any checks you want to collect
+## Create hosted source(s) for any checks you want to collect
 Since checks will be posted as single line csv files we need a slightly different format.
 A good practice would be to create a different source for each compliance mod you are using as they will create different csv column formats.
 
-for example for our AWS cis check above we will create a hosted source like this:
+For example for our AWS cis check above we will create a hosted source like this:
 - name steampipe check aws-cis
 - set a default category such as steampipe/check/aws
 - untick Extract timestamp information from log file entries so logs are assigned receipttime as messagetime
 - untick Detect messages spanning multiple lines
 
-here is an example json for this new source:
+Here is an example json for this new source:
 ```
 {
   "api.version":"v1",
@@ -161,7 +166,7 @@ here is an example json for this new source:
   }
 }
 ```
-# setup envrionment variables
+# Setup envrionment variables
 Note the example scripts use env vars for the sumo source endpoints.
 
 ## SUMO_STEAMPIPE_URL env var for query collection
@@ -173,11 +178,11 @@ Since we need a single line source for checks we need another endpoint url.
 Create an environment variable SUMO_STEAMPIPE_CHECK_URL
 This should have the endpoint address from the previous step.
 
-# Using steampipe queries in SumoLogic
+# Integrating Steampipe queries in SumoLogic
 Send inventory data to sumologic as per: https://steampipe.io/docs/using-steampipe/steampipe-query 
 We will post JSON formatted output.
 
-## create collection files
+## Create collection files
 Using an example such as aws.accounts.sh create a similar collection script for each table you want to collect. You will need to execute these on a schedule say daily via cron or some such.
 
 There is some fluff in the file to set metadata in sumo and this tricky line with sed that breaks the json but in a way to ensure sumo sees each output row as a distinct json event:
@@ -231,7 +236,7 @@ You can find a simple example dashboard in the file dashboard.query.demo.json
 ![query dash](steampipe-aws-query-dashboard.png?raw=true "query dash")
 
 
-# Using Compliance Check Data In SumoLogic
+# Integrating Compliance Check Data In SumoLogic
 Run compliance checks such as https://steampipe.io/docs/using-steampipe/running-controls
 For checks use --export in csv format to a file and post that to a checks sumologic https source.
 To use checks make sure to follow the steps above to install the mod and bind the mod directory to the container.
@@ -239,7 +244,7 @@ To use checks make sure to follow the steps above to install the mod and bind th
 ## Create check collection file
 This is an example script to run aws CIS Benchmark level 1 checks from the aws compliance mod.
 The output will be a csv file in the local ./CHECKS directory
-This will be posted to the single line friendly SUMO_STEAMPIPE_CHECK_URL HTTPS source we created previously.
+This will be posted to the 'single line friendly' SUMO_STEAMPIPE_CHECK_URL HTTPS source we created previously rather than the JSON source.
 
 ```
 ########################################## COLLECTION CONFIG ############################################
@@ -275,7 +280,7 @@ spcaws-compliance $tags --export="home/CHECKS/$filename"
 curl -X POST -H "X-Sumo-Category:steampipe/check/$check" -H "X-Sumo-Host:`hostname`" -H "X-Sumo-Name:$filename" -T "$outputpath/$filename" $SUMO_STEAMPIPE_CHECK_URL
 ```
 
-## Querying the csv formatted checks data in sumologic
+## Querying the csv formatted check events in SumoLogic
 Each collection csv might have a unique column format so we use parse csv operator in sumo noting the column names for each check type.
 
 Example query showing CIS checks in alsrm status
