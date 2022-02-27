@@ -1,6 +1,6 @@
 TEMP/*
 env.sh
 CHECKS/*
-demo-bash-using-containersTEMP/*
+demo-bash-using-containers/TEMP/*
 env.sh
-demo-bash-using-containersCHECKS/*
+demo-bash-using-containers/CHECKS/*
